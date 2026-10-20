@@ -1,0 +1,13 @@
+package com.incident.system.entity;
+
+public enum NotificationType {
+    INCIDENT_CREATED,
+    INCIDENT_ASSIGNED,
+    INCIDENT_REASSIGNED,
+    STATUS_CHANGED,
+    INCIDENT_RESOLVED,
+    INCIDENT_REOPENED,
+    SLA_WARNING,
+    SLA_BREACHED,
+    ESCALATION_TRIGGERED
+}

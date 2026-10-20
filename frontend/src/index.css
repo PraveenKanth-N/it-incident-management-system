@@ -1,0 +1,446 @@
+/* ==============================================================================
+   RESOLV // Enterprise IT Incident Management & Resolution Hub
+   Design System Tokens — Strictly Replicating Team Computers Visual Language
+   ============================================================================== */
+
+:root {
+  /* -------------------------------------------------------------------------
+     Colors & Canvas Foundations
+     ------------------------------------------------------------------------- */
+  --canvas-base: #000000;
+  --canvas-surface-0: #000000;
+  --canvas-surface-1: #090d16;
+  --canvas-surface-2: #0f172a;
+  --canvas-surface-3: #1e293b;
+
+  --glass-bg: rgba(15, 23, 42, 0.65);
+  --glass-bg-hover: rgba(26, 38, 66, 0.75);
+  --glass-bg-subtle: rgba(255, 255, 255, 0.04);
+  --glass-backdrop-blur: 16px;
+
+  /* Hairline Borders */
+  --border-glass: rgba(255, 255, 255, 0.10);
+  --border-glass-bright: rgba(255, 255, 255, 0.20);
+  --border-glass-glow: rgba(255, 255, 255, 0.35);
+
+  /* Mega-Dropdown White Surface (Reference frame_075s) */
+  --dropdown-surface: #ffffff;
+  --dropdown-text: #0f172a;
+  --dropdown-muted: #64748b;
+  --dropdown-hover-bg: #f0f7ff;
+  --dropdown-active-blue: #0284c7;
+
+  /* -------------------------------------------------------------------------
+     Theatrical Gradients (Replicated from Reference Video & Frames)
+     ------------------------------------------------------------------------- */
+  /* Hero Wine/Plum Radial (frame_000s, frame_075s) */
+  --gradient-hero-radial: radial-gradient(ellipse at 35% 30%, #7a0026 0%, #3d003e 48%, #080010 100%);
+  
+  /* Zero Incident Emerald Radial (frame_090s) */
+  --gradient-emerald-radial: radial-gradient(circle at 50% 25%, #054020 0%, #021a0d 55%, #000000 100%);
+
+  /* Multi-Stop Numerals & Telemetry Gradients */
+  --gradient-rose-p1: linear-gradient(135deg, #ff9a8b 0%, #ff6a88 55%, #ff99ac 100%);
+  --gradient-cyan-p2: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+  --gradient-emerald-p3: linear-gradient(135deg, #00ff87 0%, #60efa0 100%);
+  --gradient-amber-p4: linear-gradient(135deg, #fee140 0%, #fa709a 100%);
+
+  /* Action Pill Buttons (frame_010s, frame_030s) */
+  --gradient-btn-purple-teal: linear-gradient(90deg, #603893 0%, #1582c5 100%);
+  --gradient-btn-amber-pink: linear-gradient(90deg, #fdbb2d 0%, #e052a0 50%, #b845c2 100%);
+  --gradient-btn-rose-crimson: linear-gradient(90deg, #ff416c 0%, #ff4b2b 100%);
+
+  /* Carousel Card Bottom Glow (frame_060s) */
+  --gradient-carousel-card: linear-gradient(to bottom, #ffffff 68%, #e0f7fa 100%);
+
+  /* -------------------------------------------------------------------------
+     Typography Tokens (Montserrat Display, Inter Body, JetBrains Mono Telemetry)
+     ------------------------------------------------------------------------- */
+  --font-display: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  --text-white: #ffffff;
+  --text-heading: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+
+  /* -------------------------------------------------------------------------
+     Semantic Status Colors
+     ------------------------------------------------------------------------- */
+  --status-critical: #ff4d4f;
+  --status-critical-bg: rgba(255, 77, 79, 0.15);
+  --status-high: #fa8c16;
+  --status-high-bg: rgba(250, 140, 22, 0.15);
+  --status-medium: #1890ff;
+  --status-medium-bg: rgba(24, 144, 255, 0.15);
+  --status-low: #52c41a;
+  --status-low-bg: rgba(82, 196, 26, 0.15);
+
+  /* -------------------------------------------------------------------------
+     Radii & Geometry
+     ------------------------------------------------------------------------- */
+  --radius-card: 20px;
+  --radius-pill: 9999px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+
+  /* -------------------------------------------------------------------------
+     Shadows & Atmospheric Glow
+     ------------------------------------------------------------------------- */
+  --shadow-card: 0 10px 30px -10px rgba(0, 0, 0, 0.7);
+  --shadow-dropdown: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  --shadow-glow-purple: 0 8px 30px rgba(96, 56, 147, 0.35);
+  --shadow-glow-amber: 0 8px 30px rgba(224, 82, 160, 0.35);
+  --shadow-glow-cyan: 0 8px 30px rgba(0, 242, 254, 0.35);
+}
+
+/* ==============================================================================
+   Reset & Baseline
+   ============================================================================== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background-color: var(--canvas-base);
+  color: var(--text-heading);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Headings use bold Montserrat */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  color: var(--text-white);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* ==============================================================================
+   Utility Classes & Components
+   ============================================================================== */
+
+/* Container */
+.container {
+  width: 100%;
+  max-width: 1320px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+/* Glassmorphism Panel */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-backdrop-blur));
+  -webkit-backdrop-filter: blur(var(--glass-backdrop-blur));
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.25s ease,
+              box-shadow 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+  pointer-events: none;
+}
+
+.glass-card:hover {
+  border-color: var(--border-glass-glow);
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.85);
+}
+
+/* Gradient Text Utilities */
+.gradient-text-p1 {
+  background: var(--gradient-rose-p1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+.gradient-text-cyan {
+  background: var(--gradient-cyan-p2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+.gradient-text-emerald {
+  background: var(--gradient-emerald-p3);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+.gradient-text-amber {
+  background: var(--gradient-amber-p4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+/* Pill CTA Buttons */
+.btn-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 24px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: none;
+  color: #ffffff;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.btn-pill-purple-teal {
+  background: var(--gradient-btn-purple-teal);
+  box-shadow: var(--shadow-glow-purple);
+}
+
+.btn-pill-purple-teal:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(21, 130, 197, 0.5);
+  filter: brightness(1.08);
+}
+
+.btn-pill-amber-pink {
+  background: var(--gradient-btn-amber-pink);
+  box-shadow: var(--shadow-glow-amber);
+}
+
+.btn-pill-amber-pink:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(224, 82, 160, 0.5);
+  filter: brightness(1.08);
+}
+
+.btn-pill-outline {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.btn-pill-outline:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.btn-pill-active {
+  background: #1e3a8a;
+  border: 1px solid #3b82f6;
+  color: #ffffff;
+}
+
+/* Circular Carousel Arrow Button */
+.btn-circle-arrow {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: transparent;
+  color: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.btn-circle-arrow:hover {
+  border-color: #00b4d8;
+  color: #00b4d8;
+  background: rgba(0, 180, 216, 0.1);
+}
+
+.btn-circle-arrow.active {
+  background: #00b4d8;
+  border-color: #00b4d8;
+  color: #ffffff;
+  box-shadow: 0 4px 16px rgba(0, 180, 216, 0.4);
+}
+
+/* Pulsing Status Dot */
+.live-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #00ff87;
+  position: relative;
+  display: inline-block;
+}
+
+.live-pulse-dot::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 50%;
+  background-color: rgba(0, 255, 135, 0.5);
+  animation: pulse-ring 2s infinite ease-out;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 0.8; }
+  70% { transform: scale(2.4); opacity: 0; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+/* Breadcrumbs */
+.breadcrumb-trail {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+.breadcrumb-trail a:hover {
+  color: #ffffff;
+}
+
+.breadcrumb-separator {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* -------------------------------------------------------------------------
+   Navbar Responsive System
+   ------------------------------------------------------------------------- */
+.navbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.nav-monitoring-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 7px 16px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: #e2e8f0;
+  white-space: nowrap;
+}
+
+@media (max-width: 1240px) {
+  .navbar-nav {
+    gap: 16px !important;
+  }
+}
+
+@media (max-width: 1100px) {
+  .nav-monitoring-pill {
+    display: none !important;
+  }
+}
+
+@media (max-width: 880px) {
+  .navbar-nav {
+    display: none !important;
+  }
+}
+
+@media (max-width: 640px) {
+  #main-app-header {
+    padding: 0 16px !important;
+  }
+}
+
+/* -------------------------------------------------------------------------
+   Animations & Keyframes
+   ------------------------------------------------------------------------- */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* -------------------------------------------------------------------------
+   Reduced Motion Accessibility Support
+   ------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+

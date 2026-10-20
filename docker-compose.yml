@@ -1,0 +1,137 @@
+# ==============================================================================
+# RESOLV - IT Incident Management and Resolution System
+# Production & DevOps Compose Specification
+# ==============================================================================
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. Backend REST API Service (Spring Boot 3 / Java 21 LTS)
+  # ----------------------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: resolv-backend:latest
+    container_name: resolv-backend
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    environment:
+      - SERVER_PORT=8080
+      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-dev}
+      # Database connection defaults to host machine via host.docker.internal to use existing MySQL 8.0 on port 3306
+      - DB_HOST=${DB_HOST:-host.docker.internal}
+      - DB_PORT=${DB_PORT:-3306}
+      - DB_NAME=${DB_NAME:-incident_db}
+      - DB_USERNAME=${DB_USERNAME:-root}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRATION_MS=${JWT_EXPIRATION_MS:-86400000}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost,http://localhost:80,http://localhost:5173,http://127.0.0.1,http://127.0.0.1:80,http://127.0.0.1:5173}
+    extra_hosts:
+      # Enables container to connect to host's existing MySQL without binding port 3306
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:8080/api/v1/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - resolv-net
+
+  # ----------------------------------------------------------------------------
+  # 2. Frontend Web Application (React 18 / Vite / Nginx)
+  # ----------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_BASE_URL=/api/v1
+    image: resolv-frontend:latest
+    container_name: resolv-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://127.0.0.1/health || exit 1"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    networks:
+      - resolv-net
+
+  # ----------------------------------------------------------------------------
+  # 3. SonarQube Code Quality Server (Isolated Profile)
+  # Activated only via: docker compose --profile sonarqube up -d
+  # ----------------------------------------------------------------------------
+  sonarqube:
+    image: sonarqube:10.7-community
+    container_name: resolv-sonarqube
+    profiles:
+      - sonarqube
+    restart: unless-stopped
+    depends_on:
+      sonar-db:
+        condition: service_healthy
+    ports:
+      - "${SONAR_PORT:-9000}:9000"
+    environment:
+      - SONAR_JDBC_URL=jdbc:postgresql://sonar-db:5432/${SONAR_DB_NAME:-sonar}
+      - SONAR_JDBC_USERNAME=${SONAR_JDBC_USERNAME:-sonar}
+      - SONAR_JDBC_PASSWORD=${SONAR_JDBC_PASSWORD:-sonar_secure_password}
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+    networks:
+      - resolv-net
+
+  # ----------------------------------------------------------------------------
+  # 4. SonarQube Dedicated PostgreSQL Database
+  # Internal network only; zero host port bindings to eliminate conflict
+  # ----------------------------------------------------------------------------
+  sonar-db:
+    image: postgres:15-alpine
+    container_name: resolv-sonar-db
+    profiles:
+      - sonarqube
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${SONAR_JDBC_USERNAME:-sonar}
+      - POSTGRES_PASSWORD=${SONAR_JDBC_PASSWORD:-sonar_secure_password}
+      - POSTGRES_DB=${SONAR_DB_NAME:-sonar}
+    volumes:
+      - sonar_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${SONAR_JDBC_USERNAME:-sonar} -d ${SONAR_DB_NAME:-sonar}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - resolv-net
+
+# ------------------------------------------------------------------------------
+# Persistent Volume Declarations
+# ------------------------------------------------------------------------------
+volumes:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
+  sonar_db_data:
+
+# ------------------------------------------------------------------------------
+# Bridge Network for Service Isolation
+# ------------------------------------------------------------------------------
+networks:
+  resolv-net:
+    driver: bridge
