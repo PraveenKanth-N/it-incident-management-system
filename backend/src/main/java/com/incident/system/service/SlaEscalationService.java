@@ -267,6 +267,7 @@ public class SlaEscalationService {
             case HIGH -> 8;
             case MEDIUM -> 24;
             case LOW -> 48;
+            default -> 24;
         };
     }
 

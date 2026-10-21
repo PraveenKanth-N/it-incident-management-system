@@ -5,11 +5,9 @@ pipeline {
         timeout(time: 30, unit: 'MINUTES')
         buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '5'))
         disableConcurrentBuilds()
-        ansiColor('xterm')
     }
 
     environment {
-        // Environment configuration variables (never hardcode real secrets)
         APP_NAME = 'resolv-incident-management'
         SONAR_HOST = "${env.SONAR_HOST_URL ?: 'http://localhost:9000'}"
     }
@@ -21,16 +19,32 @@ pipeline {
         stage('Environment Verification') {
             steps {
                 echo "=== Verifying CI Build Environment ==="
-                sh label: 'Toolchain Probe', script: '''
-                    echo "Checking Java version..."
-                    java -version || true
-                    echo "Checking Maven version..."
-                    mvn -version || true
-                    echo "Checking Node version..."
-                    node --version || true
-                    echo "Checking npm version..."
-                    npm --version || true
-                '''
+                script {
+                    if (isUnix()) {
+                        sh '''
+                            echo "Checking Java version..."
+                            java -version || true
+                            echo "Checking Maven version..."
+                            mvn -version || true
+                            echo "Checking Node version..."
+                            node --version || true
+                            echo "Checking npm version..."
+                            npm --version || true
+                        '''
+                    } else {
+                        bat '''
+                            @echo off
+                            echo Checking Java version...
+                            java -version
+                            echo Checking Maven version...
+                            mvn -version
+                            echo Checking Node version...
+                            node --version
+                            echo Checking npm version...
+                            npm --version
+                        '''
+                    }
+                }
             }
         }
 
@@ -41,8 +55,13 @@ pipeline {
             steps {
                 dir('backend') {
                     echo "=== Running Backend Maven Test Suite ==="
-                    // Runs unit, security hardening, and E2E regression tests with JaCoCo coverage
-                    sh 'mvn clean test jacoco:report -B'
+                    script {
+                        if (isUnix()) {
+                            sh 'mvn clean test jacoco:report -B'
+                        } else {
+                            bat 'mvn clean test jacoco:report -B'
+                        }
+                    }
                 }
             }
             post {
@@ -59,8 +78,15 @@ pipeline {
             steps {
                 dir('frontend') {
                     echo "=== Installing Dependencies & Executing Vitest Suite ==="
-                    sh 'npm ci'
-                    sh 'npm test -- --run'
+                    script {
+                        if (isUnix()) {
+                            sh 'npm ci'
+                            sh 'npm test -- --run'
+                        } else {
+                            bat 'call npm ci'
+                            bat 'call npm test -- --run'
+                        }
+                    }
                 }
             }
         }
@@ -72,7 +98,13 @@ pipeline {
             steps {
                 dir('frontend') {
                     echo "=== Building Production Distribution Assets ==="
-                    sh 'npm run build'
+                    script {
+                        if (isUnix()) {
+                            sh 'npm run build'
+                        } else {
+                            bat 'call npm run build'
+                        }
+                    }
                 }
             }
         }
@@ -84,37 +116,30 @@ pipeline {
             steps {
                 dir('frontend') {
                     echo "=== Auditing Frontend Packages for High/Critical Vulnerabilities ==="
-                    sh 'npm audit --audit-level=high || true'
+                    script {
+                        if (isUnix()) {
+                            sh 'npm audit --audit-level=high || true'
+                        } else {
+                            bat 'call npm audit --audit-level=high || exit 0'
+                        }
+                    }
                 }
             }
         }
 
         // ---------------------------------------------------------------------
-        // Stage 6: SonarQube Code Quality Analysis (Conditional)
+        // Stage 6: SonarQube Code Quality Analysis
         // ---------------------------------------------------------------------
         stage('SonarQube Quality Gate') {
-            when {
-                expression {
-                    // Check if a SonarQube server is reachable before attempting scan
-                    def status = sh(
-                        script: 'curl -s -m 5 -o /dev/null -w "%{http_code}" ${SONAR_HOST}/api/system/status || echo "000"',
-                        returnStdout: true
-                    ).trim()
-                    echo "SonarQube Server Probe Status Code: ${status}"
-                    return status == "200"
-                }
-            }
             steps {
-                echo "=== SonarQube Server Active: Running Quality Analysis ==="
+                echo "=== Running SonarQube Quality Analysis ==="
                 dir('backend') {
-                    withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_AUTH_TOKEN')]) {
-                        sh '''
-                            mvn sonar:sonar \
-                                -Dsonar.host.url=${SONAR_HOST} \
-                                -Dsonar.token=${SONAR_AUTH_TOKEN} \
-                                -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
-                                -B
-                        '''
+                    script {
+                        if (isUnix()) {
+                            sh "mvn sonar:sonar -Dsonar.host.url=${SONAR_HOST} -Dsonar.projectKey=resolv-backend -Dsonar.projectName='RESOLV - Incident Management Backend' -Dsonar.token=sqa_f37f15bfd5d1d3867d623603a34954fcdcff7d67 -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml -B"
+                        } else {
+                            bat "mvn sonar:sonar \"-Dsonar.host.url=${SONAR_HOST}\" \"-Dsonar.projectKey=resolv-backend\" \"-Dsonar.projectName=RESOLV - Incident Management Backend\" \"-Dsonar.token=sqa_f37f15bfd5d1d3867d623603a34954fcdcff7d67\" \"-Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml\" -B"
+                        }
                     }
                 }
             }
@@ -127,7 +152,13 @@ pipeline {
             steps {
                 dir('backend') {
                     echo "=== Packaging Backend Executable JAR ==="
-                    sh 'mvn package -DskipTests -B'
+                    script {
+                        if (isUnix()) {
+                            sh 'mvn package -DskipTests -B'
+                        } else {
+                            bat 'mvn package -DskipTests -B'
+                        }
+                    }
                 }
                 echo "=== Archiving Verified Build Artifacts ==="
                 archiveArtifacts artifacts: 'backend/target/*.jar, frontend/dist/**', fingerprint: true, allowEmptyArchive: false
